@@ -1,5 +1,7 @@
 %%% Replication of Credit Network model in dynamic partner selection
 
+clear 
+
 %% Simulation size parameters
 T = 1000; %Number of time steps
 D = 500; %Number of D firms
@@ -58,22 +60,29 @@ UD(1,:) = randi([1 U],1,D); %Network between U firms and D firms (each col one D
 %YU = sum(Qu); %Aggregate U firm production
 
 %% Main programm time step
-for step = 1:T
-   Yd(T,:) = Ad(T,:) .^ beta .* phi;%%% Hier läuft was falsch
-   Qd(T,:) = Yd(T,:) .* gamma;
-   Nd(T,:) = Yd(T,:) .* deltad;
-   Bd(T,:) = Nd(T,:) .* wage - Ad(T,:);
-   %Ld(T,:) = Bd(T,:) ./ Ad(T,:)
+for s = 1:T
+   Yd(s,:) = (Ad(s,:) .^ beta) .* phi;
+   Qd(s,:) = Yd(s,:) .* gamma;
+   Nd(s,:) = Yd(s,:) .* deltad;
+   Bd(s,:) = Nd(s,:) .* wage - Ad(s,:);
+   %Ld(s,:) = Bd(s,:) ./ Ad(s,:)
    
    %% Network partner are defined as NET(T,x) = own index row
-   %Nu(T,:) = for i sum Yd for all network partners at T and multiply with
-   %gamma and deltau
-   %Qu(T,:) = for i sum Yd for all network partners at T and multiply with
+   Qu(s,:) = sum(A(s, cond) .^ beta)
+   %for i sum Yd for all network partners at s and multiply with
    %gamma
-   %Bu(T,:) = Nu(T,:) .* wage - Au(T,:)
-   %Lu(T,:) = Bu(T,:) ./ Au(T,:)
+   %Nu(s,:) = 
+   %gamma and deltau
+   %Bu(s,:) = Nu(s,:) .* wage - Au(s,:)
+   %Lu(s,:) = Bu(s,:) ./ Au(s,:)
    
+   %PId(s,:) = 
+   %PIu(s,:) = 
+   %PIb(s,:) =
    
+   %Ad(s+1,:) = Ad(s,:) + PId(s,:)
+   %Au(s+1,:) = Au(s,:) + PIu(s,:)
+   %Ab(s+1,:) = Ab(s,:) + PIb(s,:)
 end
 
 save ABM_Replicator
