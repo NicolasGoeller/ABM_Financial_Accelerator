@@ -19,6 +19,7 @@ deltau = 1; %Labour requirements
 wage = 1; %Real wage
 lambda = 1; %Partner choice
 m = 0.1; %Market participant visibility
+umin = 0.5; %Lower bound for stochastic consumer good price variation
 
 %% Agent initialization
 %D firms
@@ -61,28 +62,36 @@ UD(1,:) = randi([1 U],1,D); %Network between U firms and D firms (each col one D
 
 %% Main programm time step
 for s = 1:T
+   %% D firms: Total 9 variables
    Yd(s,:) = (Ad(s,:) .^ beta) .* phi;
    Qd(s,:) = Yd(s,:) .* gamma;
    Nd(s,:) = Yd(s,:) .* deltad;
    Bd(s,:) = Nd(s,:) .* wage - Ad(s,:);
-   %Ld(s,:) = Bd(s,:) ./ Ad(s,:)
+   Ld(s,:) = Bd(s,:) ./ Ad(s,:);
+   %% Not working because A term has not appropriate dims, 
+   %% Fix by implementing a network indicator to call out a vector of length D with the A term for the connected U firm in it
+   Rud(s,:) = (network_partners(Au(s,:), UD(s,:), D) .^ (alpha*-1)) .* alpha + (Ld(s,:) .^ alpha) .* alpha;
+   %Rbd(s,:) = (network_partners(Ab(s,:), BD(s,:), D) .^ (alpha*-1)) .* alpha + (Ld(s,:) .^ alpha) .* alpha;
    
-   %% Network partner are defined as NET(T,x) = own index row
-   Qu(s,:) = sum(A(s, cond) .^ beta)
-   %for i sum Yd for all network partners at s and multiply with
-   %gamma
-   %Nu(s,:) = 
-   %gamma and deltau
-   %Bu(s,:) = Nu(s,:) .* wage - Au(s,:)
-   %Lu(s,:) = Bu(s,:) ./ Au(s,:)
+   %% U firms: Total 
+   Qu(s,:) = network_worth(Yd(s,:), UD(s,:), U, D) .* gamma;
+   Nu(s,:) = Qu(s,:).* deltau;
+   Bu(s,:) = Nu(s,:) .* wage - Au(s,:);
+   Lu(s,:) = Bu(s,:) ./ Au(s,:);
+   %% Same as above
+   %Rbu(s,:) = (network_partners(Ab(s,:), BU(s,:), U) .^ (alpha*-1)) .* alpha + (Lu(s,:) .^ alpha) .* alpha;
    
-   %PId(s,:) = 
+   %% Profit calculations
+   %PId(s,:) = u .* Yd(s,:) - (1+Rbd(s,:)) .* Bd(s,:) - (1+Rud(s,:)) .* Qd(s,:)
    %PIu(s,:) = 
    %PIb(s,:) =
    
-   %Ad(s+1,:) = Ad(s,:) + PId(s,:)
-   %Au(s+1,:) = Au(s,:) + PIu(s,:)
-   %Ab(s+1,:) = Ab(s,:) + PIb(s,:)
+   %% Partner choice for s+1
+   
+   %% Net worth s+1 calculation
+   %Ad(s+1,:) = Ad(s,:) + PId(s,:);
+   %Au(s+1,:) = Au(s,:) + PIu(s,:);
+   %Ab(s+1,:) = Ab(s,:) + PIb(s,:);
 end
 
 save ABM_Replicator
