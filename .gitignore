@@ -41,3 +41,6 @@ CreditNetworkDynRM100.m
 
 # Model outputs
 ABM_Replicator.mat
+
+# R Outputs
+*.rds

@@ -68,25 +68,25 @@ for s = 1:T
    Nd(s,:) = Yd(s,:) .* deltad;
    Bd(s,:) = Nd(s,:) .* wage - Ad(s,:);
    Ld(s,:) = Bd(s,:) ./ Ad(s,:);
-   %% Not working because A term has not appropriate dims, 
-   %% Fix by implementing a network indicator to call out a vector of length D with the A term for the connected U firm in it
-   Rud(s,:) = (network_partners(Au(s,:), UD(s,:), D) .^ (alpha*-1)) .* alpha + (Ld(s,:) .^ alpha) .* alpha;
+   %Rud(s,:) = (network_partners(Au(s,:), UD(s,:), D) .^ (alpha*-1)) .* alpha + (Ld(s,:) .^ alpha) .* alpha;
    %Rbd(s,:) = (network_partners(Ab(s,:), BD(s,:), D) .^ (alpha*-1)) .* alpha + (Ld(s,:) .^ alpha) .* alpha;
    
-   %% U firms: Total 
+   %% U firms: Total 7 variables
    Qu(s,:) = network_worth(Yd(s,:), UD(s,:), U, D) .* gamma;
    Nu(s,:) = Qu(s,:).* deltau;
    Bu(s,:) = Nu(s,:) .* wage - Au(s,:);
    Lu(s,:) = Bu(s,:) ./ Au(s,:);
-   %% Same as above
    %Rbu(s,:) = (network_partners(Ab(s,:), BU(s,:), U) .^ (alpha*-1)) .* alpha + (Lu(s,:) .^ alpha) .* alpha;
+   
+   %% Partner choice for s+1
+   %UD(s+1,:) =
+   %BU(s+1,:) =
+   %BD(s+1,:) =
    
    %% Profit calculations
    %PId(s,:) = u .* Yd(s,:) - (1+Rbd(s,:)) .* Bd(s,:) - (1+Rud(s,:)) .* Qd(s,:)
    %PIu(s,:) = 
    %PIb(s,:) =
-   
-   %% Partner choice for s+1
    
    %% Net worth s+1 calculation
    %Ad(s+1,:) = Ad(s,:) + PId(s,:);
