@@ -1,7 +1,11 @@
 clear
 
-wor = randi([1,20], 1, 5);
-lev = rand(10, 1);
-net = randi([1,5], 1, 10);
+B = 4;
+U = 10;
 
-partner_choice(wor, lev, 0.3, net, 0.1)
+BU = randi([1,B], 1, U);
+Au = randi([1, 20], 1, U);
+Au([2 5 9]) = -1;
+Bu = randi([1,40], 1, U);
+
+bad_debt(Au, Bu, BU, B)

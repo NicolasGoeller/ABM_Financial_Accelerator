@@ -46,10 +46,12 @@ Bu = zeros(T,U); %Loan demand of U firms
 Lu = zeros(T,U); %Leverage of U firms
 Rbu = zeros(T,U); %Interest rate on loans for U firms
 PIu = zeros(T,U); %Profit of U firms
+BDu = zeros(T,U); %Bad debts of U firms
 
 %B banks
 Ab = ones(T,B); %Initial net worth of B banks set to one
 PIb = zeros(T,B); %Profit of B banks
+BDb = zeros(T,B); %Bad debt of B banks
 
 % Partner networks
 BU = zeros(T,U);
@@ -71,11 +73,10 @@ for s = 1:T
    %% Consumer good price setting
    u(s,:) = ((2-umin)-umin) .* rand(D,1) + umin;
    
-   %% D firms: Total 9 variables
+   %% D firms:
    Yd(s,:) = (Ad(s,:) .^ beta) .* phi;
    Qd(s,:) = Yd(s,:) .* gamma;
    Nd(s,:) = Yd(s,:) .* deltad;
-   %Nd(s,1:7)
    Bd(s,:) = Nd(s,:) .* wage - Ad(s,:);
    for i= 1:D
        if Bd(s,i) < 0
@@ -83,12 +84,10 @@ for s = 1:T
        end
    end
    Ld(s,:) = Bd(s,:) ./ Ad(s,:);
-   %Ld(s,1:7)
    Rud(s,:) = (network_partners(Au(s,:), UD(s,:), D) .^ (alpha*-1)) .* alpha + (Ld(s,:) .^ alpha) .* alpha;
-   %Rud(s,1:20)
    Rbd(s,:) = (network_partners(Ab(s,:), BD(s,:), D) .^ (alpha*-1)) .* alpha + (Ld(s,:) .^ alpha) .* alpha;
-   %Rbd(s,1:20)
-   %% U firms: Total 7 variables
+   
+   %% U firms:
    Qu(s,:) = network_worth(Yd(s,:), UD(s,:), U, D) .* gamma;
    Nu(s,:) = Qu(s,:).* deltau;
    Bu(s,:) = Nu(s,:) .* wage - Au(s,:);
@@ -97,11 +96,10 @@ for s = 1:T
            Bu(s,i) = 0;
        end
    end
-   %Bu(s,1:20)
+
    Lu(s,:) = Bu(s,:) ./ Au(s,:);
-   %Lu(s,1:20)
    Rbu(s,:) = (network_partners(Ab(s,:), BU(s,:), U) .^ (alpha*-1)) .*alpha; + (Lu(s,:) .^ alpha) .* alpha;
-   %Rbu(s,1:20)
+
    %% Partner choice for s+1
    UD(s+1,:) = partner_choice(Au(s,:), Ld(s,:), m, UD(s,:), lambda); 
    BU(s+1,:) = partner_choice(Ab(s,:), Lu(s,:), m, BU(s,:), lambda);
@@ -111,12 +109,28 @@ for s = 1:T
    PId(s,:) = u(s,:) .* Yd(s,:) - (1+Rbd(s,:)) .* Bd(s,:) - (1+Rud(s,:)) .* Qd(s,:);
    PIu(s,:) = network_worth(((Rud(s,:) + 1) .* Qd(s,:)), UD(s,:), U, D) - ((Rbu(s,:) + 1) .* Bu(s,:));
    PIb(s,:) = network_worth(((Rbd(s,:) + 1) .* Bd(s,:)), BD(s,:), B, D) + network_worth(((Rbu(s,:) + 1) .* Bu(s,:)), BU(s,:), B, U);
-   %PIb(s,1:20)
    
    %% Net worth s+1 calculation
    Ad(s+1,:) = Ad(s,:) + PId(s,:);
    Au(s+1,:) = Au(s,:) + PIu(s,:);
    Ab(s+1,:) = Ab(s,:) + PIb(s,:);
+   
+   BDu(s,:) = bad_debt(Ad, Qd, UD, U);
+   BDb(s,:) = bad_debt(Au, Bu, BU, B) + bad_debt(Ad, Bd, BD, B);
+   
+   Ad(s+1,:) = Ad(s,:) + PId(s,:);
+   Au(s+1,:) = Au(s,:) + PIu(s,:) - BDu(s,:);
+   Ab(s+1,:) = Ab(s,:) + PIb(s,:) - BDb(s,:);
+   
+   %% Bankruptcy mechanism
+   for i = 1:D
+   end
+   for i = 1:U
+   end
+   for i = 1:B
+   end
+   
+   
 end
 
 save ABM_Replicator
