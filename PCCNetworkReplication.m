@@ -1,5 +1,9 @@
 %%% Replication of Credit Network model in dynamic partner selection
 
+% Credit demands Bu, Bd cannot be negative, will result in complex numbers,
+% put in correction if B < 0: B = 0
+% Incorporate Bad Debt, Incorporate Bankruptcy & Re-Entry of substitutes
+
 clear 
 
 %% Simulation size parameters
@@ -23,6 +27,7 @@ umin = 0.5; %Lower bound for stochastic consumer good price variation
 
 %% Agent initialization
 %D firms
+u = zeros(T,D); %Initial consumer good prices
 Ad = ones(T,D); %Initial net worth of D firms set to one
 Yd = zeros(T,D); %Scale of production of D firms
 Nd = zeros(T,D); %Labour demand for U firms
@@ -61,37 +66,57 @@ UD(1,:) = randi([1 U],1,D); %Network between U firms and D firms (each col one D
 %YU = sum(Qu); %Aggregate U firm production
 
 %% Main programm time step
+
 for s = 1:T
+   %% Consumer good price setting
+   u(s,:) = ((2-umin)-umin) .* rand(D,1) + umin;
+   
    %% D firms: Total 9 variables
    Yd(s,:) = (Ad(s,:) .^ beta) .* phi;
    Qd(s,:) = Yd(s,:) .* gamma;
    Nd(s,:) = Yd(s,:) .* deltad;
+   %Nd(s,1:7)
    Bd(s,:) = Nd(s,:) .* wage - Ad(s,:);
+   for i= 1:D
+       if Bd(s,i) < 0
+           Bd(s,i) = 0;
+       end
+   end
    Ld(s,:) = Bd(s,:) ./ Ad(s,:);
-   %Rud(s,:) = (network_partners(Au(s,:), UD(s,:), D) .^ (alpha*-1)) .* alpha + (Ld(s,:) .^ alpha) .* alpha;
-   %Rbd(s,:) = (network_partners(Ab(s,:), BD(s,:), D) .^ (alpha*-1)) .* alpha + (Ld(s,:) .^ alpha) .* alpha;
-   
+   %Ld(s,1:7)
+   Rud(s,:) = (network_partners(Au(s,:), UD(s,:), D) .^ (alpha*-1)) .* alpha + (Ld(s,:) .^ alpha) .* alpha;
+   %Rud(s,1:20)
+   Rbd(s,:) = (network_partners(Ab(s,:), BD(s,:), D) .^ (alpha*-1)) .* alpha + (Ld(s,:) .^ alpha) .* alpha;
+   %Rbd(s,1:20)
    %% U firms: Total 7 variables
    Qu(s,:) = network_worth(Yd(s,:), UD(s,:), U, D) .* gamma;
    Nu(s,:) = Qu(s,:).* deltau;
    Bu(s,:) = Nu(s,:) .* wage - Au(s,:);
+   for i = 1:U
+       if Bu(s,i) < 0
+           Bu(s,i) = 0;
+       end
+   end
+   %Bu(s,1:20)
    Lu(s,:) = Bu(s,:) ./ Au(s,:);
-   %Rbu(s,:) = (network_partners(Ab(s,:), BU(s,:), U) .^ (alpha*-1)) .* alpha + (Lu(s,:) .^ alpha) .* alpha;
-   
+   %Lu(s,1:20)
+   Rbu(s,:) = (network_partners(Ab(s,:), BU(s,:), U) .^ (alpha*-1)) .*alpha; + (Lu(s,:) .^ alpha) .* alpha;
+   %Rbu(s,1:20)
    %% Partner choice for s+1
-   %UD(s+1,:) =
-   %BU(s+1,:) =
-   %BD(s+1,:) =
+   UD(s+1,:) = partner_choice(Au(s,:), Ld(s,:), m, UD(s,:), lambda); 
+   BU(s+1,:) = partner_choice(Ab(s,:), Lu(s,:), m, BU(s,:), lambda);
+   BD(s+1,:) = partner_choice(Ab(s,:), Ld(s,:), m, BD(s,:), lambda);
    
    %% Profit calculations
-   %PId(s,:) = u .* Yd(s,:) - (1+Rbd(s,:)) .* Bd(s,:) - (1+Rud(s,:)) .* Qd(s,:)
-   %PIu(s,:) = 
-   %PIb(s,:) =
+   PId(s,:) = u(s,:) .* Yd(s,:) - (1+Rbd(s,:)) .* Bd(s,:) - (1+Rud(s,:)) .* Qd(s,:);
+   PIu(s,:) = network_worth(((Rud(s,:) + 1) .* Qd(s,:)), UD(s,:), U, D) - ((Rbu(s,:) + 1) .* Bu(s,:));
+   PIb(s,:) = network_worth(((Rbd(s,:) + 1) .* Bd(s,:)), BD(s,:), B, D) + network_worth(((Rbu(s,:) + 1) .* Bu(s,:)), BU(s,:), B, U);
+   %PIb(s,1:20)
    
    %% Net worth s+1 calculation
-   %Ad(s+1,:) = Ad(s,:) + PId(s,:);
-   %Au(s+1,:) = Au(s,:) + PIu(s,:);
-   %Ab(s+1,:) = Ab(s,:) + PIb(s,:);
+   Ad(s+1,:) = Ad(s,:) + PId(s,:);
+   Au(s+1,:) = Au(s,:) + PIu(s,:);
+   Ab(s+1,:) = Ab(s,:) + PIb(s,:);
 end
 
 save ABM_Replicator

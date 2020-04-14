@@ -1,9 +1,7 @@
 clear
 
-testp = randi([1 20], 1, 7)
-x = 0.5
-D = 5
+wor = randi([1,20], 1, 5);
+lev = rand(10, 1);
+net = randi([1,5], 1, 10);
 
-[M,I] = min(testp)
-exp(1)
-%partner_choice(testp, x, D)
+partner_choice(wor, lev, 0.3, net, 0.1)

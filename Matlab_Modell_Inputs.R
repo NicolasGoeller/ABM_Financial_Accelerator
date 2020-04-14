@@ -32,12 +32,15 @@ Rrify <- function(matrix){
 }
 
 ### Better put each frame as element of list
-names_list <- c("d_networth", "d_production", "d_int_goods", "d_labour", "d_loans", "d_leverage", "du_interest", "db_interest", "d_profit",
-                "u_networth", "u_production", "u_labour", "u_loans", "u_leverage", "ub_interest", "u_profit", 
+names_list <- c("d_prices", "d_networth", "d_production", "d_int_goods", "d_labour",
+                "d_loans", "d_leverage", "du_interest", "db_interest", "d_profit",
+                "u_networth", "u_production", "u_labour", "u_loans", "u_leverage",
+                "ub_interest", "u_profit", 
                 "b_networth", "b_profit", 
                 "ub_network", "db_network", "du_network")
 
 ## D firms data: 9 tables
+d_prices <- Rrify(abm_accelerator["u"][[1]])
 d_networth <- Rrify(abm_accelerator["Ad"][[1]])
 d_production <- Rrify(abm_accelerator["Yd"][[1]])
 d_int_goods <- Rrify(abm_accelerator["Qd"][[1]])
@@ -67,7 +70,7 @@ db_network <- Rrify(abm_accelerator["BD"][[1]])
 du_network <- Rrify(abm_accelerator["UD"][[1]])
 
 # Zip outputs back together
-abm_accelerator <- list(d_networth, d_production, d_int_goods, d_labour, d_loans, d_leverage, du_interest, db_interest, d_profit,
+abm_accelerator <- list(d_prices, d_networth, d_production, d_int_goods, d_labour, d_loans, d_leverage, du_interest, db_interest, d_profit,
                         u_networth, u_production, u_labour, u_loans, u_leverage, ub_interest, u_profit,
                         b_networth, b_profit,
                         ub_network, db_network, du_network)
