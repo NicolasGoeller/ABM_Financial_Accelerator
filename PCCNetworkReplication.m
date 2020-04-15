@@ -1,8 +1,10 @@
 %%% Replication of Credit Network model in dynamic partner selection
+% The simulation runs under the data saving paradigm of each simulation
+% time step represents one matrix row in output, while each agent has the
+% same column number over all tables.
 
-% Credit demands Bu, Bd cannot be negative, will result in complex numbers,
-% put in correction if B < 0: B = 0
-% Incorporate Bad Debt, Incorporate Bankruptcy & Re-Entry of substitutes
+% Incorporate Bankruptcy chains 
+% Incorporate Re-Entry of substitutes
 
 clear 
 
