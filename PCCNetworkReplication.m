@@ -3,8 +3,10 @@
 % time step represents one matrix row in output, while each agent has the
 % same column number over all tables.
 
-% Incorporate Bankruptcy chains 
 % Incorporate Re-Entry of substitutes
+% Incorporate conditional subsetting statements to decrease function use and make script more transparent
+
+% Look into substitute seacrh behaviour of banks and corporations to improve partner selection algorithm
 
 clear 
 
@@ -65,9 +67,6 @@ BD(1,:) = randi([1 B],1,D); %Network between D firms and B banks (each col one D
 UD = zeros(T,D);
 UD(1,:) = randi([1 U],1,D); %Network between U firms and D firms (each col one D, number represents index of U firm)
 
-%% Aggregate variables
-%YD = sum(Yd); %Aggregate D firm production
-%YU = sum(Qu); %Aggregate U firm production
 
 %% Main programm time step
 
@@ -89,6 +88,10 @@ for s = 1:T
    Rud(s,:) = (network_partners(Au(s,:), UD(s,:), D) .^ (alpha*-1)) .* alpha + (Ld(s,:) .^ alpha) .* alpha;
    Rbd(s,:) = (network_partners(Ab(s,:), BD(s,:), D) .^ (alpha*-1)) .* alpha + (Ld(s,:) .^ alpha) .* alpha;
    
+   PId(s,:) = u(s,:) .* Yd(s,:) - (1+Rbd(s,:)) .* Bd(s,:) - (1+Rud(s,:)) .* Qd(s,:);
+   Ad(s+1,:) = Ad(s,:) + PId(s,:);
+   
+   
    %% U firms:
    Qu(s,:) = network_worth(Yd(s,:), UD(s,:), U, D) .* gamma;
    Nu(s,:) = Qu(s,:).* deltau;
@@ -102,27 +105,25 @@ for s = 1:T
    Lu(s,:) = Bu(s,:) ./ Au(s,:);
    Rbu(s,:) = (network_partners(Ab(s,:), BU(s,:), U) .^ (alpha*-1)) .*alpha; + (Lu(s,:) .^ alpha) .* alpha;
 
+   PIu(s,:) = network_worth(((Rud(s,:) + 1) .* Qd(s,:)), UD(s,:), U, D) - ((Rbu(s,:) + 1) .* Bu(s,:));
+   BDu(s,:) = bad_debt(Ad, Qd, UD, U);
+   Au(s+1,:) = Au(s,:) + PIu(s,:) - BDu(s,:);
+   
+   
+   %% B banks
+   BDb(s,:) = bad_debt(Au, Bu, BU, B) + bad_debt(Ad, Bd, BD, B);
+   PIb(s,:) = network_worth(((Rbd(s,:) + 1) .* Bd(s,:)), BD(s,:), B, D) + network_worth(((Rbu(s,:) + 1) .* Bu(s,:)), BU(s,:), B, U);
+   Ab(s+1,:) = Ab(s,:) + PIb(s,:) - BDb(s,:);
+   
+   %% Bankruptcy record
+   
+   
+   
    %% Partner choice for s+1
+   % Incoroprate default mechanism for agent bankruptcies
    UD(s+1,:) = partner_choice(Au(s,:), Ld(s,:), m, UD(s,:), lambda); 
    BU(s+1,:) = partner_choice(Ab(s,:), Lu(s,:), m, BU(s,:), lambda);
    BD(s+1,:) = partner_choice(Ab(s,:), Ld(s,:), m, BD(s,:), lambda);
-   
-   %% Profit calculations
-   PId(s,:) = u(s,:) .* Yd(s,:) - (1+Rbd(s,:)) .* Bd(s,:) - (1+Rud(s,:)) .* Qd(s,:);
-   PIu(s,:) = network_worth(((Rud(s,:) + 1) .* Qd(s,:)), UD(s,:), U, D) - ((Rbu(s,:) + 1) .* Bu(s,:));
-   PIb(s,:) = network_worth(((Rbd(s,:) + 1) .* Bd(s,:)), BD(s,:), B, D) + network_worth(((Rbu(s,:) + 1) .* Bu(s,:)), BU(s,:), B, U);
-   
-   %% Net worth s+1 calculation
-   Ad(s+1,:) = Ad(s,:) + PId(s,:);
-   Au(s+1,:) = Au(s,:) + PIu(s,:);
-   Ab(s+1,:) = Ab(s,:) + PIb(s,:);
-   
-   BDu(s,:) = bad_debt(Ad, Qd, UD, U);
-   BDb(s,:) = bad_debt(Au, Bu, BU, B) + bad_debt(Ad, Bd, BD, B);
-   
-   Ad(s+1,:) = Ad(s,:) + PId(s,:);
-   Au(s+1,:) = Au(s,:) + PIu(s,:) - BDu(s,:);
-   Ab(s+1,:) = Ab(s,:) + PIb(s,:) - BDb(s,:);
    
    %% Bankruptcy mechanism
    for i = 1:D
