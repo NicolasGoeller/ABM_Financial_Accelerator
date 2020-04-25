@@ -4,7 +4,6 @@
 % same column number over all tables.
 
 % Incorporate Re-Entry of substitutes
-% Incorporate conditional subsetting statements to decrease function use and make script more transparent
 
 % Look into substitute seacrh behaviour of banks and corporations to improve partner selection algorithm
 
@@ -41,6 +40,7 @@ Ld = zeros(T,D); %Leverage of D firms
 Rud = zeros(T,D); %Interest rate on trade credit for D firms
 Rbd = zeros(T,D); %Interest rate on loans for D firms
 PId = zeros(T,D); %Profit of D firms
+BRd = zeros(T,D); %Bankruptcy indicator of D firms
 
 %U firms
 Au = ones(T,U); %Initial net worth of U firms set to one
@@ -51,11 +51,13 @@ Lu = zeros(T,U); %Leverage of U firms
 Rbu = zeros(T,U); %Interest rate on loans for U firms
 PIu = zeros(T,U); %Profit of U firms
 BDu = zeros(T,U); %Bad debts of U firms
+BRu = zeros(T,U); %Bankruptcy indicator of U firms
 
 %B banks
 Ab = ones(T,B); %Initial net worth of B banks set to one
 PIb = zeros(T,B); %Profit of B banks
 BDb = zeros(T,B); %Bad debt of B banks
+BRb = zeros(T,B); %Bankruptcy indicator of B banks
 
 % Partner networks
 BU = zeros(T,U);
@@ -85,15 +87,16 @@ for s = 1:T
        end
    end
    Ld(s,:) = Bd(s,:) ./ Ad(s,:);
-   Rud(s,:) = (network_partners(Au(s,:), UD(s,:), D) .^ (alpha*-1)) .* alpha + (Ld(s,:) .^ alpha) .* alpha;
-   Rbd(s,:) = (network_partners(Ab(s,:), BD(s,:), D) .^ (alpha*-1)) .* alpha + (Ld(s,:) .^ alpha) .* alpha;
+   Rud(s,:) = (Au(s,UD(s,:)) .^ (alpha*-1)) .* alpha + (Ld(s,:) .^ alpha) .* alpha;
+   Rbd(s,:) = (Ab(s,BD(s,:)) .^ (alpha*-1)) .* alpha + (Ld(s,:) .^ alpha) .* alpha;
    
    PId(s,:) = u(s,:) .* Yd(s,:) - (1+Rbd(s,:)) .* Bd(s,:) - (1+Rud(s,:)) .* Qd(s,:);
    Ad(s+1,:) = Ad(s,:) + PId(s,:);
+   BRd(s,Ad(s+1,:)<0) = 1;
    
    
    %% U firms:
-   Qu(s,:) = network_worth(Yd(s,:), UD(s,:), U, D) .* gamma;
+   Qu(s,:) = network_worth(Yd(s,:), UD(s,:), U) .* gamma;
    Nu(s,:) = Qu(s,:).* deltau;
    Bu(s,:) = Nu(s,:) .* wage - Au(s,:);
    for i = 1:U
@@ -103,20 +106,19 @@ for s = 1:T
    end
 
    Lu(s,:) = Bu(s,:) ./ Au(s,:);
-   Rbu(s,:) = (network_partners(Ab(s,:), BU(s,:), U) .^ (alpha*-1)) .*alpha; + (Lu(s,:) .^ alpha) .* alpha;
+   Rbu(s,:) = (Ab(s,BU(s,:)) .^ (alpha*-1)) .*alpha + (Lu(s,:) .^ alpha) .* alpha;
 
-   PIu(s,:) = network_worth(((Rud(s,:) + 1) .* Qd(s,:)), UD(s,:), U, D) - ((Rbu(s,:) + 1) .* Bu(s,:));
-   BDu(s,:) = bad_debt(Ad, Qd, UD, U);
+   PIu(s,:) = network_worth(((Rud(s,:) + 1) .* Qd(s,:)), UD(s,:), U) - ((Rbu(s,:) + 1) .* Bu(s,:));
+   BDu(s,:) = bad_debt(Ad(s,:), Qd(s,:), UD(s,:), U);
    Au(s+1,:) = Au(s,:) + PIu(s,:) - BDu(s,:);
+   BRu(s,Au(s+1,:)<0) = 1;
    
    
    %% B banks
-   BDb(s,:) = bad_debt(Au, Bu, BU, B) + bad_debt(Ad, Bd, BD, B);
-   PIb(s,:) = network_worth(((Rbd(s,:) + 1) .* Bd(s,:)), BD(s,:), B, D) + network_worth(((Rbu(s,:) + 1) .* Bu(s,:)), BU(s,:), B, U);
+   PIb(s,:) = network_worth(((Rbd(s,:) + 1) .* Bd(s,:)), BD(s,:), B) + network_worth(((Rbu(s,:) + 1) .* Bu(s,:)), BU(s,:), B);
+   BDb(s,:) = bad_debt(Au(s,:), Bu(s,:), BU(s,:), B) + bad_debt(Ad(s,:), Bd(s,:), BD(s,:), B);
    Ab(s+1,:) = Ab(s,:) + PIb(s,:) - BDb(s,:);
-   
-   %% Bankruptcy record
-   
+   BRb(s,Ab(s+1,:)<0) = 1;
    
    
    %% Partner choice for s+1
@@ -126,12 +128,12 @@ for s = 1:T
    BD(s+1,:) = partner_choice(Ab(s,:), Ld(s,:), m, BD(s,:), lambda);
    
    %% Bankruptcy mechanism
-   for i = 1:D
-   end
-   for i = 1:U
-   end
-   for i = 1:B
-   end
+   %for i = 1:D
+   %end
+   %for i = 1:U
+   %end
+   %for i = 1:B
+   %end
    
    
 end

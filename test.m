@@ -1,13 +1,15 @@
 clear
 
-x = ceil(3.1)
+D = 10;
+U = 4;
 
-B = 4;
-U = 10;
+UD = randi([1,U],1,10);
 
-BU = randi([1,B], 1, U);
-Au = randi([1, 20], 1, U);
-Au([2 5 9]) = -1;
-Bu = randi([1,40], 1, U);
+Ad = randi([1,15],1,10);
+s = [1,4,7];
+Ad(s) = -1;
 
-bad_debt(Au, Bu, BU, B)
+Bd = randi([1,15],1,10);
+
+x = bad_debt(Ad, Bd, UD, U);
+y = bad_debt2(Ad, Bd, UD, U);
