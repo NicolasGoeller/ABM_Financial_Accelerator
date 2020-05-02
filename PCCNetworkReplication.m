@@ -82,6 +82,11 @@ for s = 1:T
    Nd(s,:) = Yd(s,:) .* deltad;
    Bd(s,:) = Nd(s,:) .* wage - Ad(s,:);
    Bd(s,Bd(s,:)<0) = 0;
+   %for i = 1:D
+   %    if Bd(s,i) < 0
+   %        Bd(s,i) = 0;
+   %    end
+   %end
    
    Ld(s,:) = Bd(s,:) ./ Ad(s,:);
    Rud(s,:) = (Au(s,UD(s,:)) .^ (alpha*-1)) .* alpha + (Ld(s,:) .^ alpha) .* alpha;
@@ -123,15 +128,23 @@ for s = 1:T
    
    
    %% Replace bankrupt agents by new ones
-   Ad(s+1, BRd(s)==1) = 1;
-   UD(s+1, BRd(s)==1) = randi([1,U],1,1);
-   BD(s+1, BRd(s)==1) = randi([1,B],1,1);
+   %Ad(s+1, BRd(s,:)==1) = 1;
+   %UD(s+1, BRd(s,:)==1) = randi([1,U],1,1);
+   %BD(s+1, BRd(s,:)==1) = randi([1,B],1,1);
 
-   Au(s+1, BRu(s)==1) = 1;
-   BU(s+1, BRu(s)==1) = randi([1,B],1,1);
+   %Au(s+1, BRu(s,:)==1) = 1;
+   %BU(s+1, BRu(s,:)==1) = randi([1,B],1,1);
    
-   Ab(s+1,BRb(s)==1) = 1;
+   %Ab(s+1, BRb(s,:)==1) = 1;
    
 end
+
+%Cut the last row from networth tables & network documentation
+Ad = Ad(1:1000,:);
+Au = Au(1:1000,:);
+Ab = Ab(1:1000,:);
+UD = UD(1:1000,:);
+BU = BU(1:1000,:);
+BD = BD(1:1000,:);
 
 save ABM_Replicator
