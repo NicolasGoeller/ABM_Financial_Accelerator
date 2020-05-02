@@ -81,11 +81,8 @@ for s = 1:T
    Qd(s,:) = Yd(s,:) .* gamma;
    Nd(s,:) = Yd(s,:) .* deltad;
    Bd(s,:) = Nd(s,:) .* wage - Ad(s,:);
-   for i= 1:D
-       if Bd(s,i) < 0
-           Bd(s,i) = 0;
-       end
-   end
+   Bd(s,Bd(s,:)<0) = 0;
+   
    Ld(s,:) = Bd(s,:) ./ Ad(s,:);
    Rud(s,:) = (Au(s,UD(s,:)) .^ (alpha*-1)) .* alpha + (Ld(s,:) .^ alpha) .* alpha;
    Rbd(s,:) = (Ab(s,BD(s,:)) .^ (alpha*-1)) .* alpha + (Ld(s,:) .^ alpha) .* alpha;
@@ -99,11 +96,7 @@ for s = 1:T
    Qu(s,:) = network_worth(Yd(s,:), UD(s,:), U) .* gamma;
    Nu(s,:) = Qu(s,:).* deltau;
    Bu(s,:) = Nu(s,:) .* wage - Au(s,:);
-   for i = 1:U
-       if Bu(s,i) < 0
-           Bu(s,i) = 0;
-       end
-   end
+   Bu(s,Bu(s,:)<0) = 0;
 
    Lu(s,:) = Bu(s,:) ./ Au(s,:);
    Rbu(s,:) = (Ab(s,BU(s,:)) .^ (alpha*-1)) .*alpha + (Lu(s,:) .^ alpha) .* alpha;
@@ -122,19 +115,22 @@ for s = 1:T
    
    
    %% Partner choice for s+1
-   % Incoroprate default mechanism for agent bankruptcies
+   % Original model replace U partner randomly if it just went bankrupt
+   % Does not replace bank partners at all if gone bankrupt
    UD(s+1,:) = partner_choice(Au(s,:), Ld(s,:), m, UD(s,:), lambda); 
    BU(s+1,:) = partner_choice(Ab(s,:), Lu(s,:), m, BU(s,:), lambda);
    BD(s+1,:) = partner_choice(Ab(s,:), Ld(s,:), m, BD(s,:), lambda);
    
-   %% Bankruptcy mechanism
-   %for i = 1:D
-   %end
-   %for i = 1:U
-   %end
-   %for i = 1:B
-   %end
    
+   %% Replace bankrupt agents by new ones
+   Ad(s+1, BRd(s)==1) = 1;
+   UD(s+1, BRd(s)==1) = randi([1,U],1,1);
+   BD(s+1, BRd(s)==1) = randi([1,B],1,1);
+
+   Au(s+1, BRu(s)==1) = 1;
+   BU(s+1, BRu(s)==1) = randi([1,B],1,1);
+   
+   Ab(s+1,BRb(s)==1) = 1;
    
 end
 

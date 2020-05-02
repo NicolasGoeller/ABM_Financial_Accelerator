@@ -1,6 +1,8 @@
 source("Matlab_Modell_Inputs.R")
 
-abm_accelerator <- output_transform()
+abm_accelerator <- output_complete()
+
+abm_aggregate <- output_aggregate()
 
 parameters <- readRDS("parameters.rds")
 
