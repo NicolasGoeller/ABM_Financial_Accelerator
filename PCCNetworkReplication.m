@@ -81,7 +81,7 @@ for s = 1:T
    Qd(s,:) = Yd(s,:) .* gamma;
    Nd(s,:) = Yd(s,:) .* deltad;
    Bd(s,:) = Nd(s,:) .* wage - Ad(s,:);
-   Bd(s,Bd(s,:)<0) = 0;
+   Bd(s,Bd(s,:)<0) = 0; %Seems that most values at T2 are 0 because firms are self-financed
    %for i = 1:D
    %    if Bd(s,i) < 0
    %        Bd(s,i) = 0;
