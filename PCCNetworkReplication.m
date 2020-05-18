@@ -128,14 +128,14 @@ for s = 1:T
    
    
    %% Replace bankrupt agents by new ones
-   %Ad(s+1, BRd(s,:)==1) = 1;
-   %UD(s+1, BRd(s,:)==1) = randi([1,U],1,1);
-   %BD(s+1, BRd(s,:)==1) = randi([1,B],1,1);
+   Ad(s+1, BRd(s,:)==1) = 1;
+   %UD(s+1, BRd(s,:)==1) = randi([1,U],1,length(BRd(s,BRd(s,:)==1)));
+   %BD(s+1, BRd(s,:)==1) = randi([1,B],1,length(BRd(s,BRd(s,:)==1)));
 
-   %Au(s+1, BRu(s,:)==1) = 1;
-   %BU(s+1, BRu(s,:)==1) = randi([1,B],1,1);
+   Au(s+1, BRu(s,:)==1) = 1;
+   %BU(s+1, BRu(s,:)==1) = randi([1,B],1,length(BRu(s,BRu(s,:)==1)));
    
-   %Ab(s+1, BRb(s,:)==1) = 1;
+   Ab(s+1, BRb(s,:)==1) = 1;
    
 end
 

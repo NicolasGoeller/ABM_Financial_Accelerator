@@ -7,5 +7,5 @@ keep <- c("YD", "YU", "FALLD", "FALLU", "AD", "AU", "AB", "RBD", "RBU",
           "GR", "SK", "KR")
 
 abm_or_var <- abm_original[keep]
-
-
+all(abm_original[["BB"]] == 0)
+table(abm_original[["BB"]])
