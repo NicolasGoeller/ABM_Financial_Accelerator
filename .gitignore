@@ -38,9 +38,11 @@ vignettes/*.pdf
 # Original model files
 CreditNetworkDynPCC100.m
 CreditNetworkDynRM100.m
+CreditNetworkDynPCC100_Runner.m
 
 # Model outputs
 ABM_Replicator.mat
+PCC100.mat
 
 # R Outputs
 .rds

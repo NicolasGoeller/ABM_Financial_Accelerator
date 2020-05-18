@@ -5,7 +5,7 @@
 
 % Incorporate Re-Entry of substitutes
 
-% Look into substitute seacrh behaviour of banks and corporations to improve partner selection algorithm
+% Look into substitute search behaviour of banks and corporations to improve partner selection algorithm
 
 clear 
 
