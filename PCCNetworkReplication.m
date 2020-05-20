@@ -17,7 +17,7 @@ B = 100; %Number of B banks
 
 
 %% Simulation parameters
-phi = 2; %Finance constraints on production
+phi = 4; %Finance constraints on production
 beta = 0.9; %Finance constraints on production
 alpha = 0.01; %Interest rate setting
 gamma = 0.5; % Intermediate goods requirements
@@ -61,18 +61,18 @@ BRb = zeros(T,B); %Bankruptcy indicator of B banks
 
 % Partner networks
 BU = zeros(T,U);
-BU(1,:) = randi([1 B],1,U); %Network between U firms and B banks (each col one U, number represents index of B bank)
+BU(2,:) = randi([1 B],1,U); %Network between U firms and B banks (each col one U, number represents index of B bank)
     
 BD = zeros(T,D);
-BD(1,:) = randi([1 B],1,D); %Network between D firms and B banks (each col one D, number represents index of B bank)
+BD(2,:) = randi([1 B],1,D); %Network between D firms and B banks (each col one D, number represents index of B bank)
 
 UD = zeros(T,D);
-UD(1,:) = randi([1 U],1,D); %Network between U firms and D firms (each col one D, number represents index of U firm)
+UD(2,:) = randi([1 U],1,D); %Network between U firms and D firms (each col one D, number represents index of U firm)
 
 
 %% Main programm time step
 
-for s = 1:T
+for s = 2:T
    %% Consumer good price setting
    u(s,:) = ((2-umin)-umin) .* rand(D,1) + umin;
    
@@ -81,16 +81,11 @@ for s = 1:T
    Qd(s,:) = Yd(s,:) .* gamma;
    Nd(s,:) = Yd(s,:) .* deltad;
    Bd(s,:) = Nd(s,:) .* wage - Ad(s,:);
-   Bd(s,Bd(s,:)<0) = 0; %Seems that most values at T2 are 0 because firms are self-financed
-   %for i = 1:D
-   %    if Bd(s,i) < 0
-   %        Bd(s,i) = 0;
-   %    end
-   %end
+   Bd(s,Bd(s,:)<0) = 0;
    
    Ld(s,:) = Bd(s,:) ./ Ad(s,:);
    Rud(s,:) = (Au(s,UD(s,:)) .^ (alpha*-1)) .* alpha + (Ld(s,:) .^ alpha) .* alpha;
-   Rbd(s,:) = (Ab(s,BD(s,:)) .^ (alpha*-1)) .* alpha + (Ld(s,:) .^ alpha) .* alpha;
+   Rbd(s,:) = (Ab(s-1,BD(s,:)) .^ (alpha*-1)) .* alpha + (Ld(s,:) .^ alpha) .* alpha; 
    
    PId(s,:) = u(s,:) .* Yd(s,:) - (1+Rbd(s,:)) .* Bd(s,:) - (1+Rud(s,:)) .* Qd(s,:);
    Ad(s+1,:) = Ad(s,:) + PId(s,:);
@@ -104,38 +99,32 @@ for s = 1:T
    Bu(s,Bu(s,:)<0) = 0;
 
    Lu(s,:) = Bu(s,:) ./ Au(s,:);
-   Rbu(s,:) = (Ab(s,BU(s,:)) .^ (alpha*-1)) .*alpha + (Lu(s,:) .^ alpha) .* alpha;
+   Rbu(s,:) = (Ab(s-1,BU(s,:)) .^ (alpha*-1)) .*alpha + (Lu(s,:) .^ alpha) .* alpha;
 
    PIu(s,:) = network_worth(((Rud(s,:) + 1) .* Qd(s,:)), UD(s,:), U) - ((Rbu(s,:) + 1) .* Bu(s,:));
-   BDu(s,:) = bad_debt(Ad(s,:), Qd(s,:), UD(s,:), U);
+   BDu(s,:) = bad_debt(Ad(s,:), Rud(s,:), Qd(s,:), UD(s,:), U);
    Au(s+1,:) = Au(s,:) + PIu(s,:) - BDu(s,:);
    BRu(s,Au(s+1,:)<0) = 1;
    
+   %% Partner choice for s+1
+   % Original model replace U partner randomly if it just went bankrupt
+   UD(s+1,:) = partner_choice(Au(s,:), Ld(s,:), UD(s,:), BRd(s,:), m, lambda); 
+   BU(s+1,:) = partner_choice(Ab(s-1,:), Lu(s,:), BU(s,:), BRu(s,:), m, lambda);
+   BD(s+1,:) = partner_choice(Ab(s-1,:), Ld(s,:), BD(s,:), BRd(s,:), m, lambda);
    
    %% B banks
    PIb(s,:) = network_worth(((Rbd(s,:) + 1) .* Bd(s,:)), BD(s,:), B) + network_worth(((Rbu(s,:) + 1) .* Bu(s,:)), BU(s,:), B);
-   BDb(s,:) = bad_debt(Au(s,:), Bu(s,:), BU(s,:), B) + bad_debt(Ad(s,:), Bd(s,:), BD(s,:), B);
+   BDb(s,:) = bad_debt(Au(s,:), Bu(s,:), Rbu(s,:), BU(s,:), B) + bad_debt(Ad(s,:), Rbd(s,:), Bd(s,:), BD(s,:), B);
    Ab(s+1,:) = Ab(s,:) + PIb(s,:) - BDb(s,:);
    BRb(s,Ab(s+1,:)<0) = 1;
    
-   
-   %% Partner choice for s+1
-   % Original model replace U partner randomly if it just went bankrupt
-   % Does not replace bank partners at all if gone bankrupt
-   UD(s+1,:) = partner_choice(Au(s,:), Ld(s,:), m, UD(s,:), lambda); 
-   BU(s+1,:) = partner_choice(Ab(s,:), Lu(s,:), m, BU(s,:), lambda);
-   BD(s+1,:) = partner_choice(Ab(s,:), Ld(s,:), m, BD(s,:), lambda);
-   
-   
    %% Replace bankrupt agents by new ones
    Ad(s+1, BRd(s,:)==1) = 1;
-   %UD(s+1, BRd(s,:)==1) = randi([1,U],1,length(BRd(s,BRd(s,:)==1)));
-   %BD(s+1, BRd(s,:)==1) = randi([1,B],1,length(BRd(s,BRd(s,:)==1)));
-
    Au(s+1, BRu(s,:)==1) = 1;
-   %BU(s+1, BRu(s,:)==1) = randi([1,B],1,length(BRu(s,BRu(s,:)==1)));
-   
    Ab(s+1, BRb(s,:)==1) = 1;
+   BD(s+1, BRd(s,:)==1) = randi([1,B],1,length(BRd(s,BRd(s,:)==1)));
+   BU(s+1, BRu(s,:)==1) = randi([1,B],1,length(BRu(s,BRu(s,:)==1)));
+   
    
 end
 
