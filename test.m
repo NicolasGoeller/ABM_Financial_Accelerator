@@ -19,5 +19,6 @@ clear
 %x = bad_debt(Ad, Bd, UD, U);
 %y = bad_debt2(Ad, Bd, UD, U);
 
-UD = zeros(5,100);
-UD(2,:) = randi([1 50],1,100); %Network between U firms and D firms (each col one D, number represents index of U firm)
+mc = 1
+
+file = ['test', num2str(mc), '.mat']

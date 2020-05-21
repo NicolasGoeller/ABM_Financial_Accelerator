@@ -3,10 +3,6 @@
 % time step represents one matrix row in output, while each agent has the
 % same column number over all tables.
 
-% Incorporate Re-Entry of substitutes
-
-% Look into substitute search behaviour of banks and corporations to improve partner selection algorithm
-
 clear 
 
 %% Simulation size parameters
@@ -15,6 +11,7 @@ D = 500; %Number of D firms
 U = 250; %Number of U firms
 B = 100; %Number of B banks
 
+%rand('state',15);
 
 %% Simulation parameters
 phi = 4; %Finance constraints on production
@@ -106,17 +103,20 @@ for s = 2:T
    Au(s+1,:) = Au(s,:) + PIu(s,:) - BDu(s,:);
    BRu(s,Au(s+1,:)<0) = 1;
    
+   
    %% Partner choice for s+1
    % Original model replace U partner randomly if it just went bankrupt
    UD(s+1,:) = partner_choice(Au(s,:), Ld(s,:), UD(s,:), BRd(s,:), m, lambda); 
    BU(s+1,:) = partner_choice(Ab(s-1,:), Lu(s,:), BU(s,:), BRu(s,:), m, lambda);
    BD(s+1,:) = partner_choice(Ab(s-1,:), Ld(s,:), BD(s,:), BRd(s,:), m, lambda);
    
+   
    %% B banks
    PIb(s,:) = network_worth(((Rbd(s,:) + 1) .* Bd(s,:)), BD(s,:), B) + network_worth(((Rbu(s,:) + 1) .* Bu(s,:)), BU(s,:), B);
    BDb(s,:) = bad_debt(Au(s,:), Bu(s,:), Rbu(s,:), BU(s,:), B) + bad_debt(Ad(s,:), Rbd(s,:), Bd(s,:), BD(s,:), B);
    Ab(s+1,:) = Ab(s,:) + PIb(s,:) - BDb(s,:);
    BRb(s,Ab(s+1,:)<0) = 1;
+   
    
    %% Replace bankrupt agents by new ones
    Ad(s+1, BRd(s,:)==1) = 1;
@@ -125,10 +125,9 @@ for s = 2:T
    BD(s+1, BRd(s,:)==1) = randi([1,B],1,length(BRd(s,BRd(s,:)==1)));
    BU(s+1, BRu(s,:)==1) = randi([1,B],1,length(BRu(s,BRu(s,:)==1)));
    
-   
 end
 
-%Cut the last row from networth tables & network documentation
+%Cut the last row from net worth tables & network documentation
 Ad = Ad(1:1000,:);
 Au = Au(1:1000,:);
 Ab = Ab(1:1000,:);

@@ -45,4 +45,4 @@ ABM_Replicator.mat
 PCC100.mat
 
 # R Outputs
-.rds
+*.rds
