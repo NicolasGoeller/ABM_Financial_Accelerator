@@ -12,7 +12,7 @@ abm_output <- readMat("ABM_Replicator.mat")
 keep <- sapply(abm_output, function(i) length(i) > 1)
 abm_accelerator <- abm_output[keep]
 parameters <- abm_output[!keep]
-saveRDS(parameters, "parameters.rds")
+saveRDS(parameters, "Data/parameters.rds")
 
 ## Transform matrix in data.frame format
 Rrify <- function(mat){
@@ -37,6 +37,12 @@ for (i in 1:length(abm_accelerator)) {
 
 names(abm_data) <- abm_names
 
+abm_banks
+abm_ufirms
+abm_dfirms
+
+
+
 return(abm_accelerator)
 
 }
@@ -55,7 +61,7 @@ output_aggregate <- function(){
   keep <- sapply(abm_output, function(i) length(i) > 1)
   abm_accelerator <- abm_output[keep]
   parameters <- abm_output[!keep]
-  saveRDS(parameters, "parameters.rds")
+  #saveRDS(parameters, "parameters.rds")
   
   # Take out network matrices
   networks <- abm_accelerator[names(abm_accelerator) %in% c("BU", "BD", "UD")]
