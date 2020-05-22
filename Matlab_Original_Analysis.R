@@ -22,14 +22,9 @@ original_abm_output <- function(matfile){
                "PB", "PBB", "PBD", "PBU", "SK", "KR")
   abm_analysis <- abm_original[results]
 
-  saveRDS(original_results, paste0("abm_ori_data_", as.character(abm_analysis[["mc"]][1]), ".rds"))
-  saveRDS(abm_analysis, paste0("abm_ori_facts_", as.character(abm_analysis[["mc"]][1]), ".rds"))
+  saveRDS(original_results, paste0("Data/abm_ori_data_", as.character(abm_analysis[["mc"]][1]), ".rds"))
+  saveRDS(abm_analysis, paste0("Data/abm_ori_facts_", as.character(abm_analysis[["mc"]][1]), ".rds"))
 }
 
-orig_abm <- readRDS("abm_ori_data_1.rds")
-analysis_abm <- readRDS("abm_ori_facts_1.rds")
-
-
-original_abm_output("PCC100.mat")
-
-test <- readMat("PCC100.mat")
+orig_abm <- readRDS("Data/abm_ori_data_1.rds")
+analysis_abm <- readRDS("Data/abm_ori_facts_1.rds")
