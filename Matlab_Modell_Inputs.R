@@ -4,6 +4,7 @@ output_complete <- function(matfile) {
 require(R.matlab) 
 require(ineq)
 require(matrixStats)
+require(tidyverse)
 #require(data.table)
 #require(rlist)  
 
@@ -176,8 +177,41 @@ abm_aggregate[,"blink_max"] <- rowMaxs(linkdis_b)
 #abm_aggregate[,"blink_mean"] <- 
 #abm_aggregate[,"blink_median"] <-
 
-#Compute total network measures
+#Functions for creating network structure data
+edgelist <- function(mats, names){
+  from <- c(paste0("D", c(1:500)), paste0("D", c(1:500)), paste0("U", c(1:250)))
+  to <- c()
+  for (i in 1:length(mats)){
+    to <- c(to, paste0(names[i], mats[[i]]))
+  }
+  edges <- data.frame("from"= from, "to"= to)
+  return(edges)
+}
+
+nodelist <- function(mats){
+  nodes <- c(paste0("D", c(1:500)), paste0("D", c(1:500)))
+  for (i in 1:length(mats)){
+    nodes <- c(nodes, unique(mats[[i]]))
+  }
+  return(nodes)
+}
+
+# Create and save of network data
+m1 <- c()
+for (i in 1:1000){
+  edges <- edgelist(mats = list(abm_accelerator[["UD"]][i,], abm_accelerator[["BD"]][i,], abm_accelerator[["BU"]][i,]), names = c("U", "B", "B"))
+  nodes <- nodelist(mats = list(abm_accelerator[["BD"]][i,], abm_accelerator[["BU"]][i,]))
+  network <- list("edgelist"= edges, "nodelist"= nodes)
+  saveRDS(network, paste0("Data/creditnetwork_", as.character(i),".rds"))
+  
+  #Compute total network measures
+  m1 <- c(m1, )
+}
+abm_aggregate[,"m1"] <- m1
 
 #Save off file for aggregates  
 saveRDS(abm_aggregate, "Data/abm_aggregate_data.rds")
+
+
+
 }
