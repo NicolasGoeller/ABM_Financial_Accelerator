@@ -102,7 +102,7 @@ for s = 2:T
    Rbu(s,:) = (Ab(s-1,BU(s,:)) .^ (alpha*-1)) .*alpha + (Lu(s,:) .^ alpha) .* alpha;
 
    PIu(s,:) = network_worth(((Rud(s,:) + 1) .* Qd(s,:)), UD(s,:), U) - ((Rbu(s,:) + 1) .* Bu(s,:));
-   BDu(s,:) = bad_debt(Ad(s,:), Qd(s,:), Rud(s,:), UD(s,:), U);
+   BDu(s,:) = bad_debt(Ad(s+1,:), Qd(s,:), Rud(s,:), UD(s,:), U);
    Au(s+1,:) = Au(s,:) + PIu(s,:) - BDu(s,:);
    BRu(s,Au(s+1,:)<0) = 1;
    
@@ -116,7 +116,7 @@ for s = 2:T
    
    %% B banks
    PIb(s,:) = network_worth(((Rbd(s,:) + 1) .* Bd(s,:)), BD(s,:), B) + network_worth(((Rbu(s,:) + 1) .* Bu(s,:)), BU(s,:), B);
-   BDb(s,:) = bad_debt(Au(s,:), Bu(s,:), Rbu(s,:), BU(s,:), B) + bad_debt(Ad(s,:), Bd(s,:), Rbd(s,:), BD(s,:), B);
+   BDb(s,:) = bad_debt(Au(s+1,:), Bu(s,:), Rbu(s,:), BU(s,:), B) + bad_debt(Ad(s+1,:), Bd(s,:), Rbd(s,:), BD(s,:), B);
    Ab(s+1,:) = Ab(s,:) + PIb(s,:) - BDb(s,:);
    BRb(s,Ab(s+1,:)<0) = 1;
    
@@ -131,11 +131,11 @@ for s = 2:T
 end
 
 %Cut the last row from net worth tables & network documentation
-Ad = Ad(1:1000,:);
-Au = Au(1:1000,:);
-Ab = Ab(1:1000,:);
-UD = UD(1:1000,:);
-BU = BU(1:1000,:);
-BD = BD(1:1000,:);
+Ad = Ad(1:T,:);
+Au = Au(1:T,:);
+Ab = Ab(1:T,:);
+UD = UD(1:T,:);
+BU = BU(1:T,:);
+BD = BD(1:T,:);
 
 save ABM_Replicator
