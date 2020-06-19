@@ -11,12 +11,12 @@ D = 500; %Number of D firms
 U = 250; %Number of U firms
 B = 100; %Number of B banks
 
-%rand('state',15);
+rand('state',15);
 
 %% Simulation parameters
-phi = 4; %Finance constraints on production
+phi = 4; %Finance constraints on production (in paper 2)
 beta = 0.9; %Finance constraints on production
-alpha = 0.01; %Interest rate setting
+alpha = 0.1; %Interest rate setting (in paper 0.01)
 gamma = 0.5; % Intermediate goods requirements
 deltad = 0.5; %Labour requirements
 deltau = 1; %Labour requirements
@@ -58,13 +58,16 @@ BRb = zeros(T,B); %Bankruptcy indicator of B banks
 
 % Partner networks
 BU = zeros(T,U);
-BU(2,:) = randi([1 B],1,U); %Network between U firms and B banks (each col one U, number represents index of B bank)
+BU(1,:) = randi([1 B],1,U); %Network between U firms and B banks (each col one U, number represents index of B bank)
+BU(2,:) = BU(1,:);
     
 BD = zeros(T,D);
-BD(2,:) = randi([1 B],1,D); %Network between D firms and B banks (each col one D, number represents index of B bank)
+BD(1,:) = randi([1 B],1,D); %Network between D firms and B banks (each col one D, number represents index of B bank)
+BD(2,:) = BD(1,:);
 
 UD = zeros(T,D);
-UD(2,:) = randi([1 U],1,D); %Network between U firms and D firms (each col one D, number represents index of U firm)
+UD(1,:) = randi([1 U],1,D); %Network between U firms and D firms (each col one D, number represents index of U firm)
+UD(2,:) = UD(1,:);
 
 
 %% Main programm time step
@@ -99,7 +102,7 @@ for s = 2:T
    Rbu(s,:) = (Ab(s-1,BU(s,:)) .^ (alpha*-1)) .*alpha + (Lu(s,:) .^ alpha) .* alpha;
 
    PIu(s,:) = network_worth(((Rud(s,:) + 1) .* Qd(s,:)), UD(s,:), U) - ((Rbu(s,:) + 1) .* Bu(s,:));
-   BDu(s,:) = bad_debt(Ad(s,:), Rud(s,:), Qd(s,:), UD(s,:), U);
+   BDu(s,:) = bad_debt(Ad(s,:), Qd(s,:), Rud(s,:), UD(s,:), U);
    Au(s+1,:) = Au(s,:) + PIu(s,:) - BDu(s,:);
    BRu(s,Au(s+1,:)<0) = 1;
    
@@ -113,7 +116,7 @@ for s = 2:T
    
    %% B banks
    PIb(s,:) = network_worth(((Rbd(s,:) + 1) .* Bd(s,:)), BD(s,:), B) + network_worth(((Rbu(s,:) + 1) .* Bu(s,:)), BU(s,:), B);
-   BDb(s,:) = bad_debt(Au(s,:), Bu(s,:), Rbu(s,:), BU(s,:), B) + bad_debt(Ad(s,:), Rbd(s,:), Bd(s,:), BD(s,:), B);
+   BDb(s,:) = bad_debt(Au(s,:), Bu(s,:), Rbu(s,:), BU(s,:), B) + bad_debt(Ad(s,:), Bd(s,:), Rbd(s,:), BD(s,:), B);
    Ab(s+1,:) = Ab(s,:) + PIb(s,:) - BDb(s,:);
    BRb(s,Ab(s+1,:)<0) = 1;
    

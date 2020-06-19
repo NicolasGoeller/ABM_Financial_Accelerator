@@ -26,5 +26,7 @@ original_abm_output <- function(matfile){
   saveRDS(abm_analysis, paste0("Data/abm_ori_facts_", as.character(abm_analysis[["mc"]][1]), ".rds"))
 }
 
+original_abm_output("PCC100.mat")
+
 orig_abm <- readRDS("Data/abm_ori_data_1.rds")
 analysis_abm <- readRDS("Data/abm_ori_facts_1.rds")

@@ -27,7 +27,7 @@ for i = 1:length(borrower_leverage)
     else
         pc(i) = network(i);
     end
-    %Correction for case the borrower just want bankrupt - Randomize partner
+    %Correction for case the borrower just went bankrupt - Randomize partner
     %selection
     if borrower_bankrupt(i) == 1
         pc(i) = randi([1,length(lender_worth)], 1,1);

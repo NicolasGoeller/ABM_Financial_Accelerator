@@ -197,7 +197,7 @@ nodelist <- function(mats){
 }
 
 # Create and save of network data
-m1 <- c()
+#m1 <- c()
 for (i in 1:1000){
   edges <- edgelist(mats = list(abm_accelerator[["UD"]][i,], abm_accelerator[["BD"]][i,], abm_accelerator[["BU"]][i,]), names = c("U", "B", "B"))
   nodes <- nodelist(mats = list(abm_accelerator[["BD"]][i,], abm_accelerator[["BU"]][i,]))
@@ -205,13 +205,12 @@ for (i in 1:1000){
   saveRDS(network, paste0("Data/creditnetwork_", as.character(i),".rds"))
   
   #Compute total network measures
-  m1 <- c(m1, )
+  #m1 <- c(m1, )
 }
-abm_aggregate[,"m1"] <- m1
+#abm_aggregate[,"m1"] <- m1
 
 #Save off file for aggregates  
 saveRDS(abm_aggregate, "Data/abm_aggregate_data.rds")
-
 
 
 }
