@@ -8,7 +8,8 @@ names(eqa) <- c("worth")
 #eqa$prod <- (eqa$worth^beta)*phi
 #eqa$lab <- eqa$prod  * delta * wage
 #eqa$loan <- eqa$lab - eqa$worth
-eqa$cred <- wage*delta*phi*(eqa$worth^beta) - eqa$worth
+#eqa$cred <- wage*delta*phi*(eqa$worth^beta) - eqa$worth
+eqa$rates <- 0.1*eqa$worth^-0.1
 #print(all(eqa$loan <= 0))
 return(eqa)
 }

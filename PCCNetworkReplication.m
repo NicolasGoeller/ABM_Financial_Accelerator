@@ -1,8 +1,4 @@
 %%% Replication of Credit Network model in dynamic partner selection
-% The simulation runs under the data saving paradigm of each simulation
-% time step represents one matrix row in output, while each agent has the
-% same column number over all tables.
-
 clear 
 
 %% Simulation size parameters
@@ -82,6 +78,8 @@ for s = 2:T
    Nd(s,:) = Yd(s,:) .* deltad;
    Bd(s,:) = Nd(s,:) .* wage - Ad(s,:);
    Bd(s,Bd(s,:)<0) = 0;
+   %% should be possible to deduct B for the network partners form ab temporarily; PIb adds it up and BDb deducts firm defaults again
+   Ab(s,BU(s,:)) = Ab(s,BU(s,:))
    
    Ld(s,:) = Bd(s,:) ./ Ad(s,:);
    Rud(s,:) = (Au(s,UD(s,:)) .^ (alpha*-1)) .* alpha + (Ld(s,:) .^ alpha) .* alpha;
@@ -99,7 +97,7 @@ for s = 2:T
    Bu(s,Bu(s,:)<0) = 0;
 
    Lu(s,:) = Bu(s,:) ./ Au(s,:);
-   Rbu(s,:) = (Ab(s-1,BU(s,:)) .^ (alpha*-1)) .*alpha + (Lu(s,:) .^ alpha) .* alpha;
+   Rbu(s,:) = (Ab(s,BU(s,:)) .^ (alpha*-1)) .*alpha + (Lu(s,:) .^ alpha) .* alpha;
 
    PIu(s,:) = network_worth(((Rud(s,:) + 1) .* Qd(s,:)), UD(s,:), U) - ((Rbu(s,:) + 1) .* Bu(s,:));
    BDu(s,:) = bad_debt(Ad(s+1,:), Qd(s,:), Rud(s,:), UD(s,:), U);
@@ -108,10 +106,12 @@ for s = 2:T
    
    
    %% Partner choice for s+1
-   % Original model replace U partner randomly if it just went bankrupt
-   UD(s+1,:) = partner_choice(Au(s,:), Ld(s,:), UD(s,:), BRd(s,:), m, lambda); 
-   BU(s+1,:) = partner_choice(Ab(s-1,:), Lu(s,:), BU(s,:), BRu(s,:), m, lambda);
-   BD(s+1,:) = partner_choice(Ab(s-1,:), Ld(s,:), BD(s,:), BRd(s,:), m, lambda);
+   % Original model replaces U partner randomly if it just went bankrupt
+   % Either calculate new network based on s+1 net worth or on current
+   % leverage
+   UD(s+1,:) = partner_choice(Au(s,:), Ld(s,:), UD(s,:), BRd(s,:), m, lambda, alpha); 
+   BU(s+1,:) = partner_choice(Ab(s,:), Lu(s,:), BU(s,:), BRu(s,:), m, lambda, alpha);
+   BD(s+1,:) = partner_choice(Ab(s,:), Ld(s,:), BD(s,:), BRd(s,:), m, lambda, alpha);
    
    
    %% B banks
