@@ -4,7 +4,6 @@ function [nw] = network_worth(term, network, actor)
 % term: a vector (or linear combination of values
 % network: a vector of values indicating network connections
 % actor: the agents that are connected into
-% recipient: the agents that are summed up
 nw = zeros(1, actor);
 for i = 1:actor
     nw(i) = sum(term(network == i));

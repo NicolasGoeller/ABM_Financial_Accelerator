@@ -79,7 +79,7 @@ for s = 2:T
    Bd(s,:) = Nd(s,:) .* wage - Ad(s,:);
    Bd(s,Bd(s,:)<0) = 0;
    %% should be possible to deduct B for the network partners form ab temporarily; PIb adds it up and BDb deducts firm defaults again
-   Ab(s,BU(s,:)) = Ab(s,BU(s,:))
+   Ab(s,:) = Ab(s,:) - network_worth(Bd(s,:), BD(s,:), B);
    
    Ld(s,:) = Bd(s,:) ./ Ad(s,:);
    Rud(s,:) = (Au(s,UD(s,:)) .^ (alpha*-1)) .* alpha + (Ld(s,:) .^ alpha) .* alpha;
@@ -95,9 +95,10 @@ for s = 2:T
    Nu(s,:) = Qu(s,:).* deltau;
    Bu(s,:) = Nu(s,:) .* wage - Au(s,:);
    Bu(s,Bu(s,:)<0) = 0;
+   Ab(s,:) = Ab(s,:) - network_worth(Bu(s,:), BU(s,:), B);
 
    Lu(s,:) = Bu(s,:) ./ Au(s,:);
-   Rbu(s,:) = (Ab(s,BU(s,:)) .^ (alpha*-1)) .*alpha + (Lu(s,:) .^ alpha) .* alpha;
+   Rbu(s,:) = (Ab(s-1,BU(s,:)) .^ (alpha*-1)) .*alpha + (Lu(s,:) .^ alpha) .* alpha;
 
    PIu(s,:) = network_worth(((Rud(s,:) + 1) .* Qd(s,:)), UD(s,:), U) - ((Rbu(s,:) + 1) .* Bu(s,:));
    BDu(s,:) = bad_debt(Ad(s+1,:), Qd(s,:), Rud(s,:), UD(s,:), U);
