@@ -5,7 +5,7 @@ credit_demand <- function(phi, beta, delta, wage){
 
 eqa <- data.frame(matrix(c(1:2000), ncol=1))
 names(eqa) <- c("worth")
-#eqa$prod <- (eqa$worth^beta)*phi
+eqa$prod <- (eqa$worth^0.9)#*phi
 #eqa$lab <- eqa$prod  * delta * wage
 #eqa$loan <- eqa$lab - eqa$worth
 #eqa$cred <- wage*delta*phi*(eqa$worth^beta) - eqa$worth
@@ -13,6 +13,11 @@ eqa$rates <- 0.1*eqa$worth^-0.1
 #print(all(eqa$loan <= 0))
 return(eqa)
 }
+
+a = (2+0.04)*100
+b = 1.04*100 + 100
+
+c <- seq(0.005, 0.025, 0.0025)
 
 phi2 <- credit_demand(2,0.9,0.5,1)
 phi3 <- credit_demand(3,0.9,0.5,1)

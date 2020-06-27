@@ -11,8 +11,8 @@ rand('state',15);
 
 %% Simulation parameters
 phi = 4; %Finance constraints on production (in paper 2)
-beta = 0.9; %Finance constraints on production
-alpha = 0.1; %Interest rate setting (in paper 0.01)
+beta = 1.5; %Finance constraints on production
+alpha = 0.01; %Interest rate setting (in paper 0.01)
 gamma = 0.5; % Intermediate goods requirements
 deltad = 0.5; %Labour requirements
 deltau = 1; %Labour requirements
@@ -78,8 +78,6 @@ for s = 2:T
    Nd(s,:) = Yd(s,:) .* deltad;
    Bd(s,:) = Nd(s,:) .* wage - Ad(s,:);
    Bd(s,Bd(s,:)<0) = 0;
-   %% should be possible to deduct B for the network partners form ab temporarily; PIb adds it up and BDb deducts firm defaults again
-   Ab(s,:) = Ab(s,:) - network_worth(Bd(s,:), BD(s,:), B);
    
    Ld(s,:) = Bd(s,:) ./ Ad(s,:);
    Rud(s,:) = (Au(s,UD(s,:)) .^ (alpha*-1)) .* alpha + (Ld(s,:) .^ alpha) .* alpha;
@@ -95,8 +93,8 @@ for s = 2:T
    Nu(s,:) = Qu(s,:).* deltau;
    Bu(s,:) = Nu(s,:) .* wage - Au(s,:);
    Bu(s,Bu(s,:)<0) = 0;
-   Ab(s,:) = Ab(s,:) - network_worth(Bu(s,:), BU(s,:), B);
-
+   
+  
    Lu(s,:) = Bu(s,:) ./ Au(s,:);
    Rbu(s,:) = (Ab(s-1,BU(s,:)) .^ (alpha*-1)) .*alpha + (Lu(s,:) .^ alpha) .* alpha;
 
@@ -116,7 +114,8 @@ for s = 2:T
    
    
    %% B banks
-   PIb(s,:) = network_worth(((Rbd(s,:) + 1) .* Bd(s,:)), BD(s,:), B) + network_worth(((Rbu(s,:) + 1) .* Bu(s,:)), BU(s,:), B);
+   %Improved profit statement
+   PIb(s,:) = network_worth((Rbd(s,:) + 1 .* Bd(s,:)), BD(s,:), B) + network_worth((Rbu(s,:) + 1 .* Bu(s,:)), BU(s,:), B);
    BDb(s,:) = bad_debt(Au(s+1,:), Bu(s,:), Rbu(s,:), BU(s,:), B) + bad_debt(Ad(s+1,:), Bd(s,:), Rbd(s,:), BD(s,:), B);
    Ab(s+1,:) = Ab(s,:) + PIb(s,:) - BDb(s,:);
    BRb(s,Ab(s+1,:)<0) = 1;
