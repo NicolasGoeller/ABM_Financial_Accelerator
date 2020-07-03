@@ -10,8 +10,8 @@ B = 100; %Number of B banks
 rand('state',15);
 
 %% Simulation parameters
-phi = 4; %Finance constraints on production (in paper 2)
-beta = 1.5; %Finance constraints on production
+phi = 2; %Finance constraints on production (in paper 2)
+beta = 0.9; %Finance constraints on production
 alpha = 0.01; %Interest rate setting (in paper 0.01)
 gamma = 0.5; % Intermediate goods requirements
 deltad = 0.5; %Labour requirements
